@@ -1,0 +1,5 @@
+telltale
+certs/
+.env
+.DS_Store
+.vscode/

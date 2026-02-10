@@ -1,0 +1,113 @@
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: telltale-notification
+  labels:
+    app.kubernetes.io/name: telltale-notification
+webhooks:
+  # Webhook for Namespace deletions
+  - name: namespace.delete.whistleblower.io
+    admissionReviewVersions:
+      - v1
+    sideEffects: NoneOnDryRun
+    failurePolicy: Ignore  # Don't block deletions if webhook fails
+    matchPolicy: Equivalent
+    timeoutSeconds: 5
+    clientConfig:
+      service:
+        name: telltale-notification
+        namespace: telltale-notification
+        path: /validate
+        port: 443
+      # IMPORTANT: Replace this with your actual CA bundle
+      # Generate with: cat ca.crt | base64 -w0
+      caBundle: ""
+    rules:
+      - apiGroups: [""]
+        apiVersions: ["v1"]
+        operations: ["DELETE"]
+        resources: ["namespaces"]
+        scope: "Cluster"
+    namespaceSelector:
+      matchExpressions:
+        # Exclude system namespaces
+        - key: kubernetes.io/metadata.name
+          operator: NotIn
+          values:
+            - kube-system
+            - kube-public
+            - kube-node-lease
+            - openshift
+            - openshift-apiserver
+            - openshift-authentication
+            - openshift-authentication-operator
+            - openshift-cloud-credential-operator
+            - openshift-cluster-machine-approver
+            - openshift-cluster-samples-operator
+            - openshift-cluster-storage-operator
+            - openshift-cluster-version
+            - openshift-config
+            - openshift-config-managed
+            - openshift-config-operator
+            - openshift-console
+            - openshift-console-operator
+            - openshift-controller-manager
+            - openshift-controller-manager-operator
+            - openshift-etcd
+            - openshift-etcd-operator
+            - openshift-host-network
+            - openshift-infra
+            - openshift-ingress
+            - openshift-ingress-canary
+            - openshift-ingress-operator
+            - openshift-insights
+            - openshift-kni-infra
+            - openshift-kube-apiserver
+            - openshift-kube-apiserver-operator
+            - openshift-kube-controller-manager
+            - openshift-kube-controller-manager-operator
+            - openshift-kube-scheduler
+            - openshift-kube-scheduler-operator
+            - openshift-kube-storage-version-migrator
+            - openshift-kube-storage-version-migrator-operator
+            - openshift-machine-api
+            - openshift-machine-config-operator
+            - openshift-marketplace
+            - openshift-monitoring
+            - openshift-multus
+            - openshift-network-diagnostics
+            - openshift-network-operator
+            - openshift-node
+            - openshift-oauth-apiserver
+            - openshift-openstack-infra
+            - openshift-operator-lifecycle-manager
+            - openshift-operators
+            - openshift-ovirt-infra
+            - openshift-sdn
+            - openshift-service-ca
+            - openshift-service-ca-operator
+            - openshift-user-workload-monitoring
+            - openshift-vsphere-infra
+            - telltale-notification
+
+  # Webhook for ArgoCD Application deletions
+  - name: application.delete.whistleblower.io
+    admissionReviewVersions:
+      - v1
+    sideEffects: NoneOnDryRun
+    failurePolicy: Ignore
+    matchPolicy: Equivalent
+    timeoutSeconds: 5
+    clientConfig:
+      service:
+        name: telltale-notification
+        namespace: telltale-notification
+        path: /validate
+        port: 443
+      caBundle: ""
+    rules:
+      - apiGroups: ["argoproj.io"]
+        apiVersions: ["v1alpha1"]
+        operations: ["DELETE"]
+        resources: ["applications"]
+        scope: "Namespaced"

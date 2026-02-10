@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: telltale-notification-config
+  namespace: telltale-notification
+  labels:
+    app.kubernetes.io/name: telltale-notification
+data:
+  # Transport type: "mail", "webhook" or "teams"
+  TRANSPORT_TYPE: "mail"
+
+  # SMTP configuration (used when TRANSPORT_TYPE=mail)
+  SMTP_HOST: "smtp.example.com"
+  SMTP_PORT: "25"
+  EMAIL_FROM: "from_example@example.com"
+  EMAIL_TO: "to_example@example.com"
+
+  # Webhook configuration (used when TRANSPORT_TYPE=webhook or teams)
+  WEBHOOK_URL: ""
